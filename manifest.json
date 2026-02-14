@@ -7,12 +7,12 @@
   "background_color": "#ffffff",
   "icons": [
     {
-      "src": "/NearBlood-admin/im.png",
+      "src": "/NearBlood.admin/im.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "/NearBlood-admin/im.png",
+      "src": "/NearBlood.admin/im.png",
       "sizes": "512x512",
       "type": "image/png"
     }
