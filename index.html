@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - NearBlood</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    <meta name="theme-color" content="#EF4444">
+
+    <style>
+        :root {
+            --primary: #EF4444;       /* Red */
+            --primary-dark: #DC2626;
+            --secondary: #3B82F6;     /* Blue for Edit */
+            --bg: #F3F4F6;
+            --white: #FFFFFF;
+            --text-dark: #1F2937;
+            --text-light: #6B7280;
+        }
+
+        body { font-family: 'Poppins', sans-serif; background: var(--bg); margin: 0; color: var(--text-dark); }
+        .hidden { display: none !important; }
+
+        /* --- LOGIN SCREEN --- */
+        .login-wrapper { display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
+        .login-card { background: var(--white); padding: 40px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); width: 100%; max-width: 400px; text-align: center; }
+
+        /* --- DASHBOARD --- */
+        .dashboard-container { max-width: 1000px; margin: 0 auto; padding: 20px; }
+        
+        /* Navbar */
+        .navbar { background: var(--white); padding: 15px 25px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.03); margin-bottom: 25px; }
+        .brand { font-size: 18px; font-weight: 600; display: flex; align-items: center; gap: 10px; color: var(--primary); }
+
+        /* Filters & Search Bar */
+        .filter-bar {
+            display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap;
+        }
+        .search-box {
+            flex: 1; position: relative;
+        }
+        .search-box input {
+            padding-left: 40px; /* Space for icon */
+        }
+        .search-icon {
+            position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-light);
+        }
+
+        /* Forms */
+        .form-card { background: var(--white); padding: 25px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.03); margin-bottom: 25px; }
+        .input-group { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; }
+        
+        input, select { width: 100%; padding: 12px 15px; border: 1px solid #E5E7EB; border-radius: 8px; font-size: 14px; outline: none; background: #F9FAFB; box-sizing: border-box; transition: 0.2s; }
+        input:focus, select:focus { border-color: var(--primary); background: var(--white); }
+
+        /* Buttons */
+        .btn { background: var(--primary); color: white; border: none; padding: 12px 20px; border-radius: 8px; cursor: pointer; font-weight: 500; font-size: 14px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; transition: 0.2s; }
+        .btn:hover { background: var(--primary-dark); }
+        .btn-logout { background: #F3F4F6; color: var(--text-dark); }
+        .btn-logout:hover { background: #E5E7EB; }
+        
+        /* Table */
+        .table-card { background: var(--white); border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.03); overflow: hidden; }
+        .table-responsive { overflow-x: auto; width: 100%; }
+        table { width: 100%; border-collapse: collapse; min-width: 600px; }
+        th { background: #FEF2F2; color: var(--primary); font-weight: 600; text-align: left; padding: 16px; font-size: 13px; text-transform: uppercase; }
+        td { padding: 16px; border-bottom: 1px solid #F3F4F6; font-size: 14px; color: var(--text-dark); }
+        tr:hover { background: #FAFAFA; }
+
+        /* Actions */
+        .action-btns { display: flex; gap: 8px; justify-content: center; }
+        .icon-btn { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; border: none; cursor: pointer; transition: 0.2s; }
+        
+        .edit-btn { background: #E0F2FE; color: var(--secondary); }
+        .edit-btn:hover { background: var(--secondary); color: white; }
+        
+        .delete-btn { background: #FEE2E2; color: var(--primary); }
+        .delete-btn:hover { background: var(--primary); color: white; }
+
+        .badge { padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; background: #FEF2F2; color: var(--primary); border: 1px solid #FECACA; }
+
+        /* --- EDIT MODAL --- */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center;
+            z-index: 1000; opacity: 0; pointer-events: none; transition: 0.3s;
+        }
+        .modal-overlay.active { opacity: 1; pointer-events: all; }
+        
+        .modal-content {
+            background: white; padding: 30px; border-radius: 12px; width: 90%; max-width: 400px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.2); transform: translateY(20px); transition: 0.3s;
+        }
+        .modal-overlay.active .modal-content { transform: translateY(0); }
+        
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .modal-title { margin: 0; font-size: 18px; font-weight: 600; }
+        .close-modal { background: none; border: none; font-size: 20px; cursor: pointer; color: var(--text-light); }
+
+        @media (max-width: 768px) {
+            .input-group { grid-template-columns: 1fr; }
+            .filter-bar { flex-direction: column; }
+            .navbar { flex-direction: column; gap: 15px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="login-screen" class="login-wrapper">
+        <div class="login-card">
+            <div style="background: #FEF2F2; width: 60px; height: 60px; border-radius: 50%; display: grid; place-items: center; margin: 0 auto 20px auto;">
+                <i class="fa-solid fa-user-shield" style="font-size: 24px; color: var(--primary);"></i>
+            </div>
+            <h2>Admin Login</h2>
+            <form id="login-form">
+                <input type="email" id="email" placeholder="Admin Email" style="margin-bottom: 15px;" required>
+                <input type="password" id="password" placeholder="Password" style="margin-bottom: 20px;" required>
+                <button type="submit" id="login-btn" class="btn" style="width: 100%;">Log In</button>
+                <p id="msg" style="color: var(--primary); margin-top: 15px; font-size: 13px;"></p>
+            </form>
+        </div>
+    </div>
+
+    <div id="dashboard" class="hidden">
+        <div class="dashboard-container">
+            
+            <nav class="navbar">
+                <div class="brand"><i class="fa-solid fa-droplet"></i> Blood Donor Admin</div>
+                <button id="logout-btn" class="btn btn-logout"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
+            </nav>
+
+            <div class="form-card">
+                <h3 style="margin-top:0;">Register New Donor</h3>
+                <div class="input-group">
+                    <input id="d-name" placeholder="Full Name">
+                    <select id="d-group">
+                        <option value="" disabled selected>Blood Group</option>
+                        <option value="A+">A+</option><option value="A-">A-</option>
+                        <option value="B+">B+</option><option value="B-">B-</option>
+                        <option value="AB+">AB+</option><option value="AB-">AB-</option>
+                        <option value="O+">O+</option><option value="O-">O-</option>
+                    </select>
+                    <input id="d-city" placeholder="Place">
+                    <input id="d-phone" type="tel" placeholder="Phone">
+                </div>
+                <div style="margin-top: 15px; text-align: right;">
+                    <button id="add-btn" class="btn"><i class="fa-solid fa-plus"></i> Add Donor</button>
+                </div>
+            </div>
+
+            <div class="filter-bar">
+                <div class="search-box">
+                    <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                    <input type="text" id="search-input" placeholder="Search by name, Place, phone...">
+                </div>
+                <div style="flex-basis: 200px;">
+                    <input type="date" id="date-filter" title="Filter by Registration Date">
+                </div>
+            </div>
+
+            <div class="table-card">
+                <div class="table-responsive">
+                    <table id="donor-table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Group</th>
+                                <th>Place</th>
+                                <th>Phone</th>
+                                <th>Date Added</th>
+                                <th style="text-align: center;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table-body"></tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="edit-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Edit Donor</h3>
+                <button class="close-modal" onclick="closeEditModal()">&times;</button>
+            </div>
+            <input type="hidden" id="edit-id">
+            <div style="display: flex; flex-direction: column; gap: 15px;">
+                <input id="edit-name" placeholder="Full Name">
+                <select id="edit-group">
+                    <option value="A+">A+</option><option value="A-">A-</option>
+                    <option value="B+">B+</option><option value="B-">B-</option>
+                    <option value="AB+">AB+</option><option value="AB-">AB-</option>
+                    <option value="O+">O+</option><option value="O-">O-</option>
+                </select>
+                <input id="edit-city" placeholder="City">
+                <input id="edit-phone" placeholder="Phone">
+                <button id="save-edit-btn" class="btn" style="background: var(--secondary);">
+                    <i class="fa-solid fa-save"></i> Save Changes
+                </button>
+            </div>
+        </div>
+    </div>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
+        import { getFirestore, collection, addDoc, deleteDoc, doc, updateDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
+
+        // ⚠️ PASTE YOUR FIREBASE CONFIG HERE ⚠️
+        const firebaseConfig = {
+            apiKey: "AIzaSyAlK1bE2ay4UlOvfNqHTIWnWPKZzwHZrxc", // <--- YOUR API KEY
+            authDomain: "blooddonorfinder-db146.firebaseapp.com",
+            projectId: "blooddonorfinder-db146",
+            storageBucket: "blooddonorfinder-db146.firebasestorage.app",
+            messagingSenderId: "560945836174",
+            appId: "1:560945836174:web:5dabd309293acc8b3b19df"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        let allDonors = []; // Store data locally for filtering
+
+        // 1. AUTH LOGIC
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                document.getElementById('login-screen').classList.add('hidden');
+                document.getElementById('dashboard').classList.remove('hidden');
+                setupRealtimeListener();
+            } else {
+                document.getElementById('login-screen').classList.remove('hidden');
+                document.getElementById('dashboard').classList.add('hidden');
+            }
+        });
+
+        document.getElementById('login-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            signInWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('password').value)
+                .catch(err => document.getElementById('msg').innerText = "Error: " + err.message);
+        });
+
+        document.getElementById('logout-btn').addEventListener('click', () => signOut(auth));
+
+        // 2. REAL-TIME DATA & FILTERING
+        function setupRealtimeListener() {
+            const q = query(collection(db, "donors"), orderBy("createdAt", "desc"));
+            
+            onSnapshot(q, (snapshot) => {
+                allDonors = [];
+                snapshot.forEach(doc => {
+                    allDonors.push({ id: doc.id, ...doc.data() });
+                });
+                renderTable(allDonors);
+            });
+        }
+
+        // Render Table Function
+        function renderTable(data) {
+            const tbody = document.getElementById('table-body');
+            tbody.innerHTML = '';
+
+            if (data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:30px; color:#999;">No matching donors found.</td></tr>';
+                return;
+            }
+
+            data.forEach(d => {
+                // Format Date (YYYY-MM-DD)
+                const dateStr = d.createdAt ? d.createdAt.split('T')[0] : '-';
+                
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td style="font-weight:500;">${d.name}</td>
+                    <td><span class="badge">${d.group}</span></td>
+                    <td>${d.city}</td>
+                    <td><a href="tel:${d.phone}" style="text-decoration:none; color:inherit;">${d.phone}</a></td>
+                    <td style="font-size:12px; color:#888;">${dateStr}</td>
+                    <td style="text-align:center;">
+                        <div class="action-btns">
+                            <button class="icon-btn edit-btn" onclick="window.openEdit('${d.id}')">
+                                <i class="fa-solid fa-pen"></i>
+                            </button>
+                            <button class="icon-btn delete-btn" onclick="window.deleteDonor('${d.id}')">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Filter Function (Search + Date)
+        function filterData() {
+            const searchTerm = document.getElementById('search-input').value.toLowerCase();
+            const dateFilter = document.getElementById('date-filter').value;
+
+            const filtered = allDonors.filter(d => {
+                const matchesSearch = 
+                    d.name.toLowerCase().includes(searchTerm) || 
+                    d.city.toLowerCase().includes(searchTerm) || 
+                    d.group.toLowerCase().includes(searchTerm) ||
+                    d.phone.includes(searchTerm);
+                
+                const matchesDate = dateFilter ? d.createdAt.startsWith(dateFilter) : true;
+
+                return matchesSearch && matchesDate;
+            });
+
+            renderTable(filtered);
+        }
+
+        // Event Listeners for Filters
+        document.getElementById('search-input').addEventListener('input', filterData);
+        document.getElementById('date-filter').addEventListener('change', filterData);
+
+        // 3. ADD DONOR
+        document.getElementById('add-btn').addEventListener('click', async () => {
+            const name = document.getElementById('d-name').value;
+            const group = document.getElementById('d-group').value;
+            const city = document.getElementById('d-city').value;
+            const phone = document.getElementById('d-phone').value;
+
+            if(!name || !group || !city || !phone) return alert("Fill all fields");
+
+            await addDoc(collection(db, "donors"), {
+                name, group, city, phone,
+                createdAt: new Date().toISOString()
+            });
+            
+            // Clear inputs
+            document.getElementById('d-name').value = '';
+            document.getElementById('d-city').value = '';
+            document.getElementById('d-phone').value = '';
+        });
+
+        // 4. DELETE DONOR
+        window.deleteDonor = async (id) => {
+            if(confirm("Permanently delete this donor?")) {
+                await deleteDoc(doc(db, "donors", id));
+            }
+        };
+
+        // 5. EDIT DONOR LOGIC
+        window.openEdit = (id) => {
+            const donor = allDonors.find(d => d.id === id);
+            if(!donor) return;
+
+            document.getElementById('edit-id').value = id;
+            document.getElementById('edit-name').value = donor.name;
+            document.getElementById('edit-group').value = donor.group;
+            document.getElementById('edit-city').value = donor.city;
+            document.getElementById('edit-phone').value = donor.phone;
+
+            document.getElementById('edit-modal').classList.add('active');
+        };
+
+        window.closeEditModal = () => {
+            document.getElementById('edit-modal').classList.remove('active');
+        };
+
+        document.getElementById('save-edit-btn').addEventListener('click', async () => {
+            const id = document.getElementById('edit-id').value;
+            const btn = document.getElementById('save-edit-btn');
+            
+            btn.innerHTML = 'Saving...';
+            
+            try {
+                await updateDoc(doc(db, "donors", id), {
+                    name: document.getElementById('edit-name').value,
+                    group: document.getElementById('edit-group').value,
+                    city: document.getElementById('edit-city').value,
+                    phone: document.getElementById('edit-phone').value
+                });
+                closeEditModal();
+            } catch(e) {
+                alert("Error updating: " + e.message);
+            } finally {
+                btn.innerHTML = '<i class="fa-solid fa-save"></i> Save Changes';
+            }
+        });
+
+        // Close modal if clicking outside
+        document.getElementById('edit-modal').addEventListener('click', (e) => {
+            if (e.target.id === 'edit-modal') closeEditModal();
+        });
+
+    </script>
+</body>
+</html>

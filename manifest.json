@@ -1,0 +1,20 @@
+{
+  "name": "NearBlood Admin",
+  "short_name": "NearBlood Admin",
+  "start_url": "/NearBlood.admin/",
+  "display": "standalone",
+  "theme_color": "#0d6efd",
+  "background_color": "#ffffff",
+  "icons": [
+    {
+      "src": "/NearBlood-admin/im.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/NearBlood-admin/im.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
