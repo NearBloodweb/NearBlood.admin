@@ -8,6 +8,15 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
     <meta name="theme-color" content="#EF4444">
 <script src="at.js"></script>
+     <link rel="manifest" href="/NearBlood-admin/manifest.json">
+<meta name="theme-color" content="#0d6efd">
+    <script>
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("/NearBlood.admin/service-worker.js")
+      .then(() => console.log("Service Worker Registered"))
+      .catch(err => console.error("SW failed:", err));
+  }
+    </script>
     <style>
         :root {
             --primary: #EF4444;       /* Red */
