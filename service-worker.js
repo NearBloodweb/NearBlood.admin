@@ -1,4 +1,4 @@
-const CACHE_NAME = "nearblood-admin-cache-v1";
+const CACHE_NAME = "nearblood.admin-cache-v1";
 const urlsToCache = [
   "/NearBlood.admin/",
   "/NearBlood.admin/index.html",
